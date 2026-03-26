@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "state-pattern"
+name = "state-pattern-py"
 version = "0.1.0"
 description = "State Pattern for Python -- port of the Ruby state_pattern gem"
 requires-python = ">=3.10"

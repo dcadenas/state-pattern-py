@@ -7,7 +7,7 @@ Clean state machines with plain classes. No DSL, no decorators -- just inheritan
 ## Install
 
 ```
-pip install state-pattern
+pip install state-pattern-py
 ```
 
 ## Quick start
