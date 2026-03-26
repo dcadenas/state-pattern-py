@@ -1,0 +1,34 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "state-pattern"
+version = "0.1.0"
+description = "State Pattern for Python -- port of the Ruby state_pattern gem"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [
+    { name = "Daniel Cadenas" },
+]
+keywords = ["state-pattern", "state-machine", "fsm"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+
+[project.urls]
+Homepage = "https://github.com/dcadenas/state-pattern-py"
+Repository = "https://github.com/dcadenas/state-pattern-py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/state_pattern"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
