@@ -1,4 +1,5 @@
-import inspect
+class TerminalStateError(Exception):
+    """Raised when attempting to transition out of a terminal state."""
 
 
 class State:
@@ -8,6 +9,8 @@ class State:
     inherited State methods) are automatically delegated from the stateful
     object.
     """
+
+    terminal: bool = False
 
     def __init__(self, stateful, previous_state=None):
         self.stateful = stateful

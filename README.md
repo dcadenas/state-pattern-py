@@ -97,6 +97,53 @@ greeter = Greeter("World")
 print(greeter.greet())  # "Hello, World!"
 ```
 
+## Transition hook
+
+Override `on_transition` on the stateful object to observe every transition:
+
+```python
+class LoggingSwitch(Stateful):
+    initial_state = Off
+
+    def __init__(self):
+        super().__init__()
+        self.log = []
+
+    def on_transition(self, from_state, to_state_class):
+        self.log.append((type(from_state).__name__, to_state_class.__name__))
+```
+
+Called after `exit()`, before `enter()`. The default is a no-op.
+
+## Terminal states
+
+Mark a state as terminal to prevent any transitions out of it:
+
+```python
+class Done(State):
+    terminal = True
+
+    def finish(self):
+        self.transition_to(Active)  # raises TerminalStateError
+```
+
+## Serialization
+
+Save and restore the current state by name:
+
+```python
+machine = Machine()
+machine.work()
+name = machine.state_name        # "Running"
+
+# Later, or on another instance:
+machine2 = Machine()
+machine2.restore_state(name)     # no hooks fire
+assert machine2.state_name == "Running"
+```
+
+`restore_state` skips `enter`/`exit` hooks -- it's for deserialization, not a transition.
+
 ## Previous state
 
 Each state has access to `self.previous_state`, which holds the prior state instance (or `None` for the initial state).

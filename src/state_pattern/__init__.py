@@ -1,4 +1,13 @@
-from state_pattern.state import State
+from state_pattern.state import State, TerminalStateError
+
+
+def _all_state_subclasses(cls):
+    """Recursively collect all subclasses of cls."""
+    result = set()
+    for sub in cls.__subclasses__():
+        result.add(sub)
+        result.update(_all_state_subclasses(sub))
+    return result
 
 
 class _StatefulMeta(type):
@@ -38,6 +47,24 @@ class Stateful(metaclass=_StatefulMeta):
             self._set_state()
         return self._current_state_instance
 
+    @property
+    def state_name(self):
+        """Return the class name of the current state."""
+        return type(self.current_state_instance).__name__
+
+    def restore_state(self, name):
+        """Restore the machine to a state by class name.
+
+        Skips enter/exit hooks — this is for deserialization, not a transition.
+        """
+        for cls in _all_state_subclasses(State):
+            if cls.__name__ == name:
+                self._current_state_instance = object.__new__(cls)
+                self._current_state_instance.stateful = self
+                self._current_state_instance.previous_state = None
+                return
+        raise ValueError(f"Unknown state: {name!r}")
+
     def _set_state(self, state_class=None):
         if state_class is None:
             state_class = self.__class__.initial_state
@@ -50,8 +77,22 @@ class Stateful(metaclass=_StatefulMeta):
         return self._current_state_instance
 
     def transition_to(self, next_state_class):
-        self.current_state_instance.exit()
+        current = self.current_state_instance
+        if current.terminal:
+            raise TerminalStateError(
+                f"Cannot transition from terminal state {type(current).__name__!r}"
+            )
+        current.exit()
+        self.on_transition(current, next_state_class)
         self._set_state(next_state_class)
+
+    def on_transition(self, from_state, to_state_class):
+        """Called after exit(), before enter() on every transition.
+
+        Override to add logging, persistence, or other cross-cutting concerns.
+        ``from_state`` is the outgoing State instance, ``to_state_class`` is the
+        incoming State class (not yet instantiated).
+        """
 
     def __getattr__(self, name):
         # Only delegate methods that are declared as state methods.
@@ -62,4 +103,4 @@ class Stateful(metaclass=_StatefulMeta):
         )
 
 
-__all__ = ["State", "Stateful"]
+__all__ = ["State", "Stateful", "TerminalStateError"]
